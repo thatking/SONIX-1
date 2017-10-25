@@ -1,6 +1,6 @@
 #include "UART.h"
 
-uint8_t Recive_Buff[10];
+uint8_t Recive_Buff2[10];
 uint8_t Recive_Count = 0;
 
 
@@ -79,20 +79,27 @@ void UartInterrupt(void) interrupt ISRUart
 		}else{
 			if(S0BUF != BUS_END)
 			{
-			 if(Recive_Count < 10)
-			 {
-				 Recive_Buff[Recive_Count] = S0BUF;		
-         Recive_Count ++;	
-			 }else{
+				Recive_Buffer2_Full_Flag = 0;
+				if(!Analysis_Lock)
+				{	
+					if(Recive_Count < 10)
+				  {
+					  Recive_Buff[Recive_Count] = S0BUF;		
+					  Recive_Count ++;	
+				  }else{
+					  Head_Flag = 0;
+					  Recive_Count = 0;
+				  }
+				}else{
+					Head_Flag = 0;
+					Recive_Count = 0;
+				}
+			}else{
+				 Recevie_Date_Length = Recive_Count;		 
 				 Head_Flag = 0;
 				 Recive_Count = 0;
-			 }		 			 		 
-			}else{
-				Recevie_Date_Length = Recive_Count;
-				Head_Flag = 0;
-				Recive_Count = 0;
-				Recive_OK_Flag = 1;
-			}
+				 Recive_Buffer2_Full_Flag = 1;
+			}	 
 		}
 	}
 }	

@@ -1,7 +1,8 @@
 #include "protocol.h"
 #include "UART.h"
 
-extern uint8_t Recive_Buff[10];
+uint8_t Recive_Buff1[10];
+extern uint8_t Recive_Buff2[10];
 extern uint8_t Flash_Times;
 extern uint8_t Flash_Times_Level;
 extern uint8_t Skin_Color_Level;
@@ -52,13 +53,19 @@ void Send_Data(uint8_t *Data,uint8_t length)
 
 void Analysis_Request(void)
 {
-	if(Recive_OK_Flag)
+	if(Recive_Buffer2_Full_Flag)
 	{
-		Recive_OK_Flag = 0;
 		Analysis_Lock = 1;
-		Data_Check_OK = Receive_Data_Check(&Recive_Buff);
-		if(!Data_Check_OK)
+		Recive_Buffer2_Full_Flag = 0;	
+		for(char i = 0; i< Recevie_Date_Length, i++)
 		{
+			Recive_Buff1[i]=Recive_Buff2[i];
+		}
+		Analysis_Lock = 0;
+		Recive_Buffer1_Full_Flag = 1;
+		Data_Check_OK = Receive_Data_Check(&Recive_Buff1,Recevie_Date_Length);
+		if(!Data_Check_OK)
+		{		
 			Data_Check_OK = 1;  
 			switch(Recive_Buff[0]){
 				case FUN_No1 : No1_Fun();break;
@@ -71,10 +78,11 @@ void Analysis_Request(void)
 				case FUN_No8 : No8_Fun();break;
 				default : break;
 			}
-	  }
-		Analysis_Lock = 0;
+		}
+		Recive_Buffer1_Full_Flag = 0;
 	}
 }
+
 
 uint8_t Crc_Caculate(uint8_t *d,uint8_t length)
 {
@@ -86,10 +94,10 @@ uint8_t Crc_Caculate(uint8_t *d,uint8_t length)
 	return crc;
 }
 
-uint8_t Receive_Data_Check(uint8_t *d)
+uint8_t Receive_Data_Check(uint8_t *d,uint8_t length)
 {
 	uint8_t crc = 0;
-	while(Recevie_Date_Length--)
+	while(length--)
 	{
 	  crc = CRC_Table[crc ^ *d++];
 	}
@@ -114,11 +122,6 @@ void No2_Fun(void)   /* get flash times level */
 void No3_Fun(void)   /* get skin color level */
 {
 	Send_Data(&Skin_Color_Level,1);
-}
-
-void No4_Fun(void)   /* get Flash Flag */
-{
-	
 }
 
 void No6_Fun(void)   /* get ERROR flag */

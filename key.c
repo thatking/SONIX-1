@@ -1,8 +1,18 @@
 #include "key.h"
+#include "Flash_Control.h"
+#include "Error_Check.h"
 
-uint8_t Key_Tirg = 0;
+uint8_t Key_Trig = 0;
 uint8_t Key_Count = 0;
 uint8_t Key_Read = 0;
+uint8_t Standard_Flash_Lock = 0;
+uint8_t Mode_Type = 0;
+uint8_t Flash_Times_Level = 0;
+uint8_t Low_Lamp = 0;
+uint8_t Full_Charge_Flag = 0;
+
+extern uint8_t Error_Flag;
+
 
 void Key_IO_Init(void)
 {
@@ -12,6 +22,7 @@ void Key_IO_Init(void)
 	P0UR |= 0x01;   /* P00:enable Pull up */
 }
 
+
 void Key_Scan(void)
 {
 	uint8_t temp_p1 = P1;
@@ -19,7 +30,7 @@ void Key_Scan(void)
 	Key_Read = (P0&0x01) | (temp_p1 & 0x02) ^ 0xFF;  /* not */
 	Key_Trig = Key_Read & (Key_Read ^ Key_Count);
 	Key_Count = Key_Read;
-	if(Standard_Mode && Standard_Multi_Mode)
+	if((Mode_Type == Standard_Mode) || (Mode_Type == Standard_Multi_Mode))
 	{
 		if(!(Key_Count & TOUCH_PIN))
 		{
@@ -33,9 +44,10 @@ void Key_Scan(void)
 	}
 }
 
+
 void Key_Process(void)
 {
-	if((!(Error_Flag)) || (!(Full_Charge)) || (!(Low_Lamp))) 
+	if((!(Error_Flag)) || (!(Full_Charge_Flag)) || (!(Low_Lamp))) 
 	{
 		Key_Scan();
 		switch(Mode_Type){
@@ -48,36 +60,12 @@ void Key_Process(void)
 	}
 }
 
+
 void Auto_Flash(void)
 {
   if(Key_Count & TOUCH_PIN)
 	{
-	 while(!(Recive_Buff[0] == FUN_No4))
-	 {
-		 while(!Recive_OK_Flag);
-		 Recive_OK_Flag = 0;
-   }
-	 Send_Data(&Flash_Flag,1);
-	 Recive_OK_Flag = 0;
-	 while(!Flash_Ready_OK_Flag)
-	 {
-		 while(!Recive_OK_Flag);
-		 Flash_Ready_OK_Flag = Recive_Buff[0];
-		 Recive_OK_Flag = 0;
-	 }
-   Recive_OK_Flag = 0;
-	 while(flash_times)
-	 {
-		 Trig_On;
-		 while(!Flash_OFF_Flag)
-		 {
-			 while(!Recive_OK_Flag);
-		   Flash_OFF_Flag = Recive_Buff[2];
-		   Recive_OK_Flag = 0;
-		 }
-		 Recive_OK_Flag = 0;
-		 flash_times--;
-	 }
+	 Flash_Control(1);
   }
 }
 

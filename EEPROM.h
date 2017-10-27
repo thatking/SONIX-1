@@ -17,8 +17,7 @@
 #define __EEPROM_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "SN8F5702.h"
-#include <stdio.h>
+#include "SN8F5702.H"
 
 /*
 ********************************************************************************
@@ -28,8 +27,8 @@
 //#define EEPROM_EEROR_SAK_TIMEOUT        1
 //#define EEPROM_EEROR_NoSAK_TIMEOUT      2
 
-#define EEPORM_UNIO_PORT                P1
-#define EEPROM_UNIO_PIN                 P11
+#define EEPORM_UNIO_PORT                P2
+#define EEPROM_UNIO_PIN                 P20
 
 /*
 ********************************************************************************
@@ -38,6 +37,8 @@
 */
 #define EEPROM_DEVICE_ADDR              0xA0
 #define DATA_ADDR                       0x0000
+#define DATA_ADDR_H                     0x00
+#define DATA_ADDR_L                     0x00
 
 /*
 ********************************************************************************
@@ -68,21 +69,49 @@
 #define CMD_ERAL                        0x6D
 #define CMD_SETAL                       0x67
 
+#define SET_IO_LOW(p)                   {p=0;}
+#define SET_IO_HIGH(p)                  {p=1;}
+
+#define EEPROM_MAK()										{ SET_IO_LOW(EEPROM_UNIO_PIN);        /* SCIO Output 0*/\
+																					Delay_10us();\
+																					Delay_10us();\
+																					Delay_10us();\
+																					SET_IO_HIGH(EEPROM_UNIO_PIN);        /* SCIO Output 1*/\
+																					Delay_10us();\
+																					Delay_10us();\
+																					Delay_10us();}
+#define EEPROM_NoMAK()									{ SET_IO_HIGH(EEPROM_UNIO_PIN);        /* SCIO Output 1*/\
+																					Delay_10us();\
+																					Delay_10us();\
+																					Delay_10us();\
+																					SET_IO_LOW(EEPROM_UNIO_PIN);        /* SCIO Output 0*/\
+																					Delay_10us();\
+																					Delay_10us();\
+																					Delay_10us();}
+#define EEPROM_StartHeader()            { SET_IO_HIGH(EEPROM_UNIO_PIN);\
+																					Delay_N_10us(60);\
+																					SET_IO_LOW(EEPROM_UNIO_PIN);\
+																					Delay_5us();\
+																					Delay_10us();\
+																					EEPROM_Write_Byte(EEPROM_STARTHEADER);\
+																					EEPROM_MAK();\
+																					EEPROM_NoSAK();}
+
 /*
 ********************************************************************************
 *                                FUNCTIONS
 ********************************************************************************
 */
-static uint32_t I2C_TIMEOUT_UserCallBack(uint8_t errorCode);
-void EEPROM_MAK(void) ;
-void EEPROM_NoMAK(void);
+
+//void EEPROM_MAK(void) ;
+//void EEPROM_NoMAK(void);
 void EEPROM_SAK(void);
 void EEPROM_NoSAK(void);
 void EEPROM_Write_Byte(uint8_t write_data);
 uint8_t EEPROM_Read_Byte(void);
-void EEPROM_StartHeader(void);
-void EEPROM_Read_Data(uint8_t *data_arry, uint16_t read_addr, uint8_t read_num);
-void EEPROM_Write_Data(uint8_t *data_arry, uint16_t write_addr, uint8_t write_num);
+//void EEPROM_StartHeader(void);
+//void EEPROM_Read_Data(uint8_t *data_arry, uint16_t read_addr, uint8_t read_num);
+//void EEPROM_Write_Data(uint8_t *data_arry, uint16_t write_addr, uint8_t write_num);
 void EEPROM_Write_CMD(uint8_t cmd);
 uint8_t EEPROM_Read_SR(void);
 void EEPROM_Write_SR(uint8_t srdata);

@@ -18,13 +18,21 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "SN8F5702.H"
-	
+
+//#define Delay_us()             	
+		
+
+
 /*
 ********************************************************************************
 *                               DELAY FUNCTION
 ********************************************************************************
 */
-void Delay_us(uint16_t N);
+
+void Delay_5us(void);
+void Delay_N_5us(uint8_t N);
+void Delay_N_10us(uint8_t N);
+void Delay_10us(void);
 void Delay_ms(uint16_t N);
 void Delay_Init(void);
 

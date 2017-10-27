@@ -19,7 +19,20 @@
 #define FUN_No8											0x08  /* Mode Type */
 #define FUN_No9											0x09  /* Flash Ready OK Flag */
 #define FUN_No10										0x0A  /* Flash Level */
+#define FUN_No11                    0x0B  /* Get Lamp Type */
 
 #define CRC_8										    0x31  /* CRC_CCITT */
+
+uint8_t Crc_Caculate(uint8_t *d,uint8_t length);
+uint8_t Receive_Data_Check(uint8_t *d,uint8_t length);
+void Send_Data(uint8_t *Data,uint8_t length);
+void Analysis_Request(void);
+void No1_Fun(void);
+void No2_Fun(void);
+void No3_Fun(void);
+void No6_Fun(void);
+void No7_Fun(void);
+void No8_Fun(void);
+void No11_Fun(void);
 
 #endif

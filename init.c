@@ -1,6 +1,10 @@
 #include "init.h"
 
-uint32_t Flash_Times;
+extern uint32_t Flash_Times;
+extern uint8_t Lamp_Type;
+extern uint8_t Flash_Times_Level;
+extern uint8_t Low_Lamp;
+
 void Init_Fun(void)
 {
 	UART_SEND;
@@ -8,10 +12,10 @@ void Init_Fun(void)
 	Delay_Init();
 	Uart_Init();
 	ADC_Init_Fun();	
-	EEPROM_IO_Init();	
+	//EEPROM_IO_Init();	
 	Key_IO_Init();
   Flash_Times = Read_Num_From_EEPROM();
-  if(Flash_Times >= Flash_Times_Level10)
+  if(Flash_Times >= Flash_Times_Level1)
 	{
 		Flash_Times_Level = Flash_Times_Level_10;
 		Low_Lamp = 1;

@@ -4,7 +4,7 @@
 #include "SN8F5702.h"
 
 #define Trig_On							          {P07 = 1;}
-#define Trig_On							          {P07 = 0;}
+#define Trig_Off							        {P07 = 0;}
 
 #define Full_Charge_LED_On	          {P01 = 1;}
 #define Full_Charge_LED_Off						{P01 = 0;}
@@ -29,5 +29,9 @@
 #define Flash_Times_Level_3					  3
 #define Flash_Times_Level_2					  2
 #define Flash_Times_Level_1					  1
+
+void Flash_IO_Init(void);
+void Flash_Control(uint8_t flash_times);
+
 
 #endif

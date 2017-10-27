@@ -11,4 +11,10 @@
 #define CARTRIDGE_TYPE_1_L                2048 
 #define CARTRIDGE_TYPE_2                  3686 /* two lamp: 4.5v */
 
-#endifg
+void Fan_Error_Check(void);
+void Cartridge_Error_Check(void);
+void Cartridge_Type_Check(void);
+void Error_Check(void);
+
+
+#endif

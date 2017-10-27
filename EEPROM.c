@@ -16,7 +16,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "EEPROM.h"
 #include "delay.h"
-#include "IO_Config.h"
 
 /* Global variable -----------------------------------------------------------*/
 uint8_t EEPROM_ERROR_Flag = 0;  /* EEPROM Read, Write, Timeout Error Flag */
@@ -36,9 +35,9 @@ uint8_t EEPROM_ERROR_Flag = 0;  /* EEPROM Read, Write, Timeout Error Flag */
 */
 void EEPROM_IO_Init(void)
 {
-	P11 = 1;
-	P1M |= 0x02; //P11 output mode;
-	P1UR &= ~0x02;  //disable pull up;
+	P20 = 1;
+	P2M |= 0x01; //P11 output mode;
+	P2UR &= ~0x01;  //disable pull up;
 }
 
 /*
@@ -52,14 +51,19 @@ void EEPROM_IO_Init(void)
 * Note(s)    : none.
 ********************************************************************************
 */
+/*
 void EEPROM_MAK(void)                    
 { 
   SET_IO_LOW(EEPROM_UNIO_PIN);        /* SCIO Output 0*/
-  Delay_us(30);
+ /* Delay_10us();
+	Delay_10us();
+	Delay_10us();
   SET_IO_HIGH(EEPROM_UNIO_PIN);        /* SCIO Output 1*/
-  Delay_us(30);
+ /* Delay_10us();
+	Delay_10us();
+	Delay_10us();
 }
-
+*/
 /*
 ********************************************************************************
 *                           EEPROM NoMAK FUNCTIONS
@@ -71,14 +75,19 @@ void EEPROM_MAK(void)
 * Note(s)    : none.
 ********************************************************************************
 */
+/*
 void EEPROM_NoMAK(void)                  
 { 
   SET_IO_HIGH(EEPROM_UNIO_PIN);        /* SCIO Output 1*/
-  Delay_us(30);
+  /*Delay_10us();
+	Delay_10us();
+	Delay_10us();
   SET_IO_LOW(EEPROM_UNIO_PIN);        /* SCIO Output 0*/
-  Delay_us(30);
+ /* Delay_10us();
+	Delay_10us();
+	Delay_10us();
 }
-
+*/
 /*
 ********************************************************************************
 *                           EEPROM SAK FUNCTIONS
@@ -93,7 +102,7 @@ void EEPROM_NoMAK(void)
 void EEPROM_SAK(void)
 { 
   uint8_t timeout = EEPROM_WAIT;
-	P1M &= ~0x02; //P11 Input mode;
+	P2M &= ~0x01; //P20 Input mode;
   //SET_IO_HIGH(EEPORM_UNIO_PORT,EEPROM_UNIO_PIN);     /* input (OD OUT) */
   while(EEPROM_UNIO_PIN)
   {
@@ -107,7 +116,7 @@ void EEPROM_SAK(void)
       EEPROM_ERROR_Flag = 0;
     }
   }
-  Delay_us(60);
+  Delay_N_5us(12);  //60us
   if(!(EEPROM_UNIO_PIN))
   {
     EEPROM_ERROR_Flag = 1;
@@ -116,7 +125,7 @@ void EEPROM_SAK(void)
   }else{
     EEPROM_ERROR_Flag = 0;		
     SET_IO_HIGH(EEPROM_UNIO_PIN);
-		P1M |= 0x02; //P11 output mode;
+		P2M |= 0x01; //P20 output mode;
   }
 }
 
@@ -134,7 +143,7 @@ void EEPROM_SAK(void)
 void EEPROM_NoSAK(void)
 { 
   uint16_t timeout = EEPROM_WAIT;
-	P1M &= ~0x02; //P11 Input mode;
+	P2M &= ~0x01; //P20 Input mode;
   //SET_IO_DIR_INPUT(EEPORM_UNIO_PORT,EEPROM_UNIO_PIN);   /* change direction Iutput */
   //SET_IO_HIGH(EEPORM_UNIO_PORT,EEPROM_UNIO_PIN);
   while(!(EEPROM_UNIO_PIN))        /* if SCIO is 0 */
@@ -149,8 +158,8 @@ void EEPROM_NoSAK(void)
       EEPROM_ERROR_Flag = 0;
     }
   }
-  Delay_us(60);
-	P1M |= 0x02; //P11 output mode;
+  Delay_N_5us(12); //60us
+	P2M |= 0x01; //P20 output mode;
   //SET_IO_DIR_OUT(EEPORM_UNIO_PORT,EEPROM_UNIO_PIN);     /* change direction Output */
 }
 
@@ -174,14 +183,22 @@ void EEPROM_Write_Byte(uint8_t write_data)
     if(write_data & t)
     {
       SET_IO_LOW(EEPROM_UNIO_PIN);
-      Delay_us(30);
+      Delay_10us();
+	    Delay_10us();
+	    Delay_10us();
       SET_IO_HIGH(EEPROM_UNIO_PIN);
-      Delay_us(30);
+      Delay_10us();
+	    Delay_10us();
+	    Delay_10us();
     }else{
       SET_IO_HIGH(EEPROM_UNIO_PIN);
-      Delay_us(30);
+      Delay_10us();
+	    Delay_10us();
+	    Delay_10us();
       SET_IO_LOW(EEPROM_UNIO_PIN);
-      Delay_us(30);
+      Delay_10us();
+	    Delay_10us();
+	    Delay_10us();
     }
     t = t >> 1;
   }  
@@ -203,14 +220,19 @@ void EEPROM_Write_Byte(uint8_t write_data)
 */
 uint8_t EEPROM_Read_Byte(void)
 {
-	P1M &= ~0x02; //P11 Input mode;
-  uint8_t t = 0x80,readtmp = 0;
+	uint8_t t = 0x80;
+	uint8_t readtmp = 0;
+	P2M &= ~0x01; //P20 Input mode;
   while(t)
   {
-    Delay_us(15);
+    Delay_5us();
+	  Delay_5us();
+	  Delay_5us();
     if(!(EEPROM_UNIO_PIN))
     {
-      Delay_us(30);
+      Delay_10us();
+	    Delay_10us();
+	    Delay_10us();
       if(!(EEPROM_UNIO_PIN))
       {
         EEPROM_ERROR_Flag = 1;
@@ -221,7 +243,9 @@ uint8_t EEPROM_Read_Byte(void)
         readtmp |= t;
       }
     }else{
-        Delay_us(30);
+        Delay_10us();
+				Delay_10us();
+				Delay_10us();
         if(EEPROM_UNIO_PIN)
         {
           EEPROM_ERROR_Flag = 1;
@@ -232,10 +256,12 @@ uint8_t EEPROM_Read_Byte(void)
           readtmp &= ~t;
         }
     }
-    Delay_us(15);
+    Delay_5us();
+	  Delay_5us();
+	  Delay_5us();
     t = t >> 1;
   }
-	P1M |= 0x02; //P11 Output mode;
+	P2M |= 0x01; //P20 Output mode;
   return readtmp;
 }
 
@@ -253,18 +279,21 @@ uint8_t EEPROM_Read_Byte(void)
 * Note(s)    : If timeout, Than set EEPROM ERROR Flag.
 ********************************************************************************
 */
+/*
 void EEPROM_StartHeader(void)
 {
   //SET_IO_LOW(EEPORM_UNIO_PORT,EEPROM_UNIO_PIN);         /* Otput 0 to start */
   //Delay_us(10);
-  SET_IO_HIGH(EEPROM_UNIO_PIN);
-  Delay_us(600);
+ /* SET_IO_HIGH(EEPROM_UNIO_PIN);
+  Delay_N_10us(60);
   SET_IO_LOW(EEPROM_UNIO_PIN);
-  Delay_us(10);
+  Delay_5us();
+	Delay_10us();
   EEPROM_Write_Byte(EEPROM_STARTHEADER);
   EEPROM_MAK();
   EEPROM_NoSAK();
 }
+*/
 
 /*
 ********************************************************************************
@@ -280,6 +309,7 @@ void EEPROM_StartHeader(void)
 * Note(s)    : If timeout, Than set EEPROM ERROR Flag.
 ********************************************************************************
 */
+/*
 void EEPROM_Read_Data(uint8_t *data_arry, uint16_t read_addr, uint8_t read_num)
 {
   uint8_t i,read_addr_tmpH,read_addr_tmpL;
@@ -312,7 +342,7 @@ void EEPROM_Read_Data(uint8_t *data_arry, uint16_t read_addr, uint8_t read_num)
     EEPROM_SAK();
   }
 }
-
+*/
 /*
 ********************************************************************************
 *                        EEPROM WRITE DATA FUNCTIONS
@@ -327,6 +357,7 @@ void EEPROM_Read_Data(uint8_t *data_arry, uint16_t read_addr, uint8_t read_num)
 * Note(s)    : If timeout, Than set EEPROM ERROR Flag.
 ********************************************************************************
 */
+/*
 void EEPROM_Write_Data(uint8_t *data_arry, uint16_t write_addr, uint8_t write_num)
 {
   uint8_t i,write_addr_tmpH,write_addr_tmpL;
@@ -361,7 +392,7 @@ void EEPROM_Write_Data(uint8_t *data_arry, uint16_t write_addr, uint8_t write_nu
   }
   Delay_ms(20);
 }
-
+*/
 /*
 ********************************************************************************
 *                        EEPROM WRITE COMMAND FUNCTIONS
@@ -471,6 +502,7 @@ void EEPROM_Write_SR(uint8_t srdata)
 void Write_Num_TO_EEPROM(uint32_t flash_count)
 {
   uint8_t dataHH,dataHL,dataLH,dataLL,data_arry[4];
+	uint8_t i;
   dataHH = (uint8_t)(flash_count >> 24);  /* 32 Bit unmerge two 8 Bit Data */
   dataHL = (uint8_t)(flash_count >> 16);
   dataLH = (uint8_t)(flash_count >> 8);
@@ -478,8 +510,35 @@ void Write_Num_TO_EEPROM(uint32_t flash_count)
   data_arry[0] = dataLL;
   data_arry[1] = dataLH;
   data_arry[2] = dataHL;
-  data_arry[3] = dataHH;
-  EEPROM_Write_Data(data_arry,DATA_ADDR,4);  /* write Data to DATA_ADDR in EEPROM */
+  data_arry[3] = dataHH;  /* write Data to DATA_ADDR in EEPROM */
+
+  EEPROM_Write_CMD(CMD_WREN);
+  EEPROM_StartHeader();
+  EEPROM_Write_Byte(EEPROM_DEVICE_ADDR);
+  EEPROM_MAK();
+  EEPROM_SAK();
+  EEPROM_Write_Byte(CMD_WRITE);
+  EEPROM_MAK();
+  EEPROM_SAK();
+  EEPROM_Write_Byte(DATA_ADDR_H);
+  EEPROM_MAK();
+  EEPROM_SAK(); 
+  EEPROM_Write_Byte(DATA_ADDR_L);
+  EEPROM_MAK();
+  EEPROM_SAK();
+	
+  for(i=0;i<4;i++)
+  {
+    EEPROM_Write_Byte(data_arry[i]);
+    if(i == 3)
+    {
+      EEPROM_NoMAK();
+    }else{
+      EEPROM_MAK();
+    }
+    EEPROM_SAK();
+  }
+  Delay_ms(20);
   EEPROM_Write_CMD(CMD_WRDI);  /* Disable write, protect EEPROM Data*/
 }
 
@@ -501,13 +560,42 @@ void Write_Num_TO_EEPROM(uint32_t flash_count)
 */
 uint32_t Read_Num_From_EEPROM(void)
 {
-  uint8_t read_arry[4];
-  uint32_t read_data;
-  EEPROM_Read_Data(read_arry,DATA_ADDR,4);  /* read two data from DATA_ADDR in EEPORM */
-  //read_data = read_arry[3];  /* Two 8 bit data merge one 32 bit data */
-  read_data = ((uint32_t)read_arry[3] << 24) | ((uint32_t)read_arry[2] << 16) | \
-              ((uint32_t)read_arry[1] << 8) | (uint32_t)read_arry[0];
-  return read_data;  /* return read data */
+  uint8_t data_arry[4];
+	uint8_t i;
+  uint32_t read_data; 	
+	 
+//  read_addr_tmpH = (DATA_ADDR >> 8) & 0xFF;
+//  read_addr_tmpL = DATA_ADDR & 0xFF;
+	
+  EEPROM_StartHeader();
+  EEPROM_Write_Byte(EEPROM_DEVICE_ADDR);
+  EEPROM_MAK();
+  EEPROM_SAK();
+  EEPROM_Write_Byte(CMD_READ);
+  EEPROM_MAK();
+  EEPROM_SAK();
+  EEPROM_Write_Byte(DATA_ADDR_H);
+  EEPROM_MAK();
+  EEPROM_SAK(); 
+  EEPROM_Write_Byte(DATA_ADDR_L);
+  EEPROM_MAK();
+  EEPROM_SAK();
+	
+  for(i=0;i<4;i++)
+  {
+    data_arry[i] = EEPROM_Read_Byte();
+    if(i == 3 )
+    {
+      EEPROM_NoMAK();
+    }else{
+      EEPROM_MAK();
+    }		
+    EEPROM_SAK();
+  }
+  //read_data = read_arry[3];  /* Two 8 Bit Data merge one 32 Bit Data */
+  read_data = ((uint32_t)data_arry[3] << 24) | ((uint32_t)data_arry[2] << 16) | \
+              ((uint32_t)data_arry[1] << 8) | (uint32_t)data_arry[0];
+  return read_data;  /* return read Data */
 }
 
 

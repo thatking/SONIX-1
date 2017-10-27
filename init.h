@@ -9,4 +9,6 @@
 #include "Flash_Control.h"
 #include "key.h"
 
+void Init_Fun(void);
+
 #endif

@@ -1,21 +1,13 @@
 #include "protocol.h"
 #include "UART.h"
+#include "delay.h"
+//#include "Error_Check.h"
+//#include "Flash_Control.h"
 
-uint8_t Recive_Buff1[10];
-extern uint8_t Recive_Buff2[10];
-extern uint8_t Flash_Times;
-extern uint8_t Flash_Times_Level;
-extern uint8_t Skin_Color_Level;
-extern uint8_t Flash_Request_Flag;
-extern uint8_t Flash_Flag;
-extern uint8_t Flash_OK_Flag;
-extern uint8_t Error_Flag;
-extern uint8_t Full_Charge_Flag;
-extern uint8_t Mode_Type;
-extern uint8_t Flash_Ready_OK_Flag;
-
+uint8_t Analysis_Lock = 0;
 uint8_t Data_Check_OK = 0;
-static const uint8_t CRC_Table[256]={
+
+static const uint8_t code CRC_Table[256]={
     0x00,0x31,0x62,0x53,0xc4,0xf5,0xa6,0x97,0xb9,0x88,0xdb,0xea,0x7d,0x4c,0x1f,0x2e,
     0x43,0x72,0x21,0x10,0x87,0xb6,0xe5,0xd4,0xfa,0xcb,0x98,0xa9,0x3e,0x0f,0x5c,0x6d,
     0x86,0xb7,0xe4,0xd5,0x42,0x73,0x20,0x11,0x3f,0x0e,0x5d,0x6c,0xfb,0xca,0x99,0xa8,
@@ -34,54 +26,10 @@ static const uint8_t CRC_Table[256]={
     0x82,0xb3,0xe0,0xd1,0x46,0x77,0x24,0x15,0x3b,0x0a,0x59,0x68,0xff,0xce,0x9d,0xac
 };
 
+extern uint8_t Recive_Buff[10];
 
-void Send_Data(uint8_t *Data,uint8_t length)
-{
-	uint8_t i,crc,temp[10];
-	temp[0] = length;
-	for(i=1;i<length+1;i++)
-	{
-		temp[i] = *Data++;
-	}
-	crc = Tran_Crc_Caculate(&temp,length+1);
-	temp[length+1] = crc;
-	temp[length+2] = '\0';
-	Uart_SendByte(BUS_HEADER);	
-	Uart_SendStr(&temp);	
-	Uart_SendByte(BUS_END);
-}
-
-void Analysis_Request(void)
-{
-	if(Recive_Buffer2_Full_Flag)
-	{
-		Analysis_Lock = 1;
-		Recive_Buffer2_Full_Flag = 0;	
-		for(char i = 0; i< Recevie_Date_Length, i++)
-		{
-			Recive_Buff1[i]=Recive_Buff2[i];
-		}
-		Analysis_Lock = 0;
-		Recive_Buffer1_Full_Flag = 1;
-		Data_Check_OK = Receive_Data_Check(&Recive_Buff1,Recevie_Date_Length);
-		if(!Data_Check_OK)
-		{		
-			Data_Check_OK = 1;  
-			switch(Recive_Buff[0]){
-				case FUN_No1 : No1_Fun();break;
-				case FUN_No2 : No2_Fun();break;
-				case FUN_No3 : No3_Fun();break;
-				case FUN_No4 : No4_Fun();break;
-				case FUN_No5 : No5_Fun();break;
-				case FUN_No6 : No6_Fun();break;
-				case FUN_No7 : No7_Fun();break;
-				case FUN_No8 : No8_Fun();break;
-				default : break;
-			}
-		}
-		Recive_Buffer1_Full_Flag = 0;
-	}
-}
+extern uint8_t Recive_Buffer_Full_Flag;
+extern uint8_t Recevie_Date_Length;
 
 
 uint8_t Crc_Caculate(uint8_t *d,uint8_t length)
@@ -104,43 +52,23 @@ uint8_t Receive_Data_Check(uint8_t *d,uint8_t length)
 	return crc;
 }
 
-void No1_Fun(void)    /* get flash times */
+void Send_Data(uint8_t *Data,uint8_t length)
 {
-	uint8_t temp[4];
-	temp[0] = (uint8_t)Flash_Times;
-	temp[1] = (uint8_t)(Flash_Times>>8);
-	temp[2] = (uint8_t)(Flash_Times>>16);
-	temp[3] = (uint8_t)(Flash_Times>>24);
-	Send_Data(&temp,4);
-}
-
-void No2_Fun(void)   /* get flash times level */
-{
-	Send_Data(&Flash_Times_Level,1);
-}
-
-void No3_Fun(void)   /* get skin color level */
-{
-	Send_Data(&Skin_Color_Level,1);
-}
-
-void No6_Fun(void)   /* get ERROR flag */
-{
-	Send_Data(&Error_Flag,1);
-}
-
-void No7_Fun(void)   /* Full Charge flag */
-{
-	Full_Charge_Flag = Recive_Buff[2];
-	if(Full_Charge_Flag)
+	uint8_t i,crc,temp[8];
+	temp[0] = length;
+	for(i=1;i<length+1;i++)
 	{
-		Full_Charge_On;
-	}else{
-		Full_Charge_Off;
+		temp[i] = *Data;
+		Data++;
 	}
+	crc = Crc_Caculate(&temp,length+1);
+	temp[length+1] = crc;
+	Uart_SendByte(BUS_HEADER);
+  for(i=0;i<length+2;i++)
+  {
+    Uart_SendByte(temp[i]);
+	}		
+	Uart_SendByte(BUS_END);
 }
 
-void No8_Fun(void)  /* Mode Type */
-{
-	Mode_Type = Recive_Buff[2];
-}
+

@@ -41,7 +41,7 @@ void ADC_Init_Fun(void)
 	P1CON |= 0x16;  //disable P11,P12,P14 schmitt trigger
 	//P2CON |= 0x01; //disable P20 schmitt trigger
 	VREFH = 0x07;  //Vref = VDD = 5V;
-	ADR = 0x50;  //Enable AIN channel, Fadc = Fosc/8 = 4MHz; T = 16us
+	ADR = 0x40;  //Enable AIN channel, Fadc = Fosc/8 = 4MHz; T = 16us
 }
 
 /*

@@ -29,16 +29,50 @@
 * Note(s)    : none.
 ********************************************************************************
 */
-void Delay_us(u16 nus)
-{  
-  while(nus--)
+
+void Delay_10us(void)
+{ 
+	char i=2;
+	while(i--)
 	{
-		TH0 = 0xFF;     /* 1 us */
-		TL0 = 0xE0;
-		TR0 = 1;  //enable timer;
-    while(!(TF0));
-	}
-	TR0 = 0;  //disable timer;
+		_nop_();
+		_nop_();
+	  _nop_();
+		_nop_();
+  }
+}
+
+void Delay_N_5us(uint8_t N)
+{
+	while(N--)
+	{
+	 char i=0;
+	 while(i--);
+  }
+}
+
+void Delay_5us(void)
+{ 
+	char i=0;
+	while(i--);
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+}
+
+void Delay_N_10us(uint8_t N)
+{
+	while(N--)
+	{
+	 char i=2;
+	 while(i--)
+	 {
+		 _nop_();
+	 }
+	 _nop_();
+ }
 }
 
 /*
@@ -60,6 +94,8 @@ void Delay_ms(uint16_t N)
 		TL0 = 0x00;
 		TR0 = 1;  //enable timer;
     while(!(TF0));
+		TF0 = 0;
+	//	TR0 = 0;  //disable timer;
   }
 	TR0 = 0;  //disable timer;
 }
@@ -67,12 +103,12 @@ void Delay_ms(uint16_t N)
 void Delay_Init(void)
 {
 	//IEN0  //disable Interrupt
-	TF0 = 0;   //clean flag;
-	TR0 = 0;  //disable timer;
-	TCON0 |= 0x70; //Ft0 = 32MHz;
 	TH0 = 0x00;
 	TL0 = 0x00;
 	TMOD |= 0x05;  //Ft0 = Fosc, 16 Bit up;
+	TCON0 |= 0x70; //Ft0 = 32MHz;
+	TF0 = 0;   //clean flag;
+	TR0 = 0;  //disable timer;
 }
 
 /************************ (C) COPYRIGHT YUJIN *****END OF FILE*****************/

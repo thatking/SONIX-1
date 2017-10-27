@@ -9,6 +9,7 @@
 
 void Uart_Init(void);
 void Uart_SendByte(uint8_t Data);
+void Uart_SendStr(uint8_t *str);
 uint8_t Uart_ReceiveByte(void);
 
 #endif

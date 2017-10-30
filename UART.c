@@ -1,11 +1,11 @@
 #include "UART.h"
 #include "protocol.h"
 
-uint8_t Recive_Buff[10];
-uint8_t Recive_Count = 0;
+uint8_t Receive_Buff[10];
+uint8_t Receive_Count = 0;
 uint8_t Head_Flag = 0;
-uint8_t Recive_Buffer_Full_Flag = 0;
-uint8_t Recevie_Date_Length = 0;
+uint8_t Receive_Buffer_Full_Flag = 0;
+uint8_t Receive_Date_Length = 0;
 
 extern uint8_t Analysis_Lock;
 
@@ -54,6 +54,27 @@ void Uart_SendStr(uint8_t *str)
   UART_RECEIVE;
 }
 
+void Uart_Send32Bit(uint32_t d)
+{
+	uint8_t data_arry[4];
+	uint8_t i;
+	UART_SEND;
+  IEN0 &= ~0x10;  /* disable uart Interrupt */
+  data_arry[3] = (uint8_t)(d >> 24);  /* 32 Bit unmerge two 8 Bit Data */
+  data_arry[2] = (uint8_t)(d >> 16);
+  data_arry[1] = (uint8_t)(d >> 8);
+  data_arry[0] = (uint8_t)(d);
+  
+	for(i=0;i<4;i++)
+	{
+		S0BUF = data_arry[i];
+    while(!(S0CON & 0x02));
+    S0CON &= ~0x02;
+	}
+	IEN0 |= 0x10;  /* enable uart Interrupt */
+  UART_RECEIVE;
+}
+
 uint8_t Uart_ReceiveByte(void)
 {
  return ((uint8_t)S0BUF);
@@ -73,26 +94,26 @@ void UartInterrupt(void) interrupt ISRUart
 		}else{
 			if(S0BUF != BUS_END)
 			{
-				Recive_Buffer_Full_Flag = 0;
-				//if(!Analysis_Lock)
-			//	{	
-					if(Recive_Count < 10)
+				Receive_Buffer_Full_Flag = 0;
+				if(!Analysis_Lock)
+				{	
+					if(Receive_Count < 10)
 				  {
-					  Recive_Buff[Recive_Count] = S0BUF;		
-					  Recive_Count ++;	
+					  Receive_Buff[Receive_Count] = S0BUF;		
+					  Receive_Count ++;	
 				  }else{
 					  Head_Flag = 0;
-					  Recive_Count = 0;
+					  Receive_Count = 0;
 				  }
-			//	}else{
-				//	Head_Flag = 0;
-				//	Recive_Count = 0;
-				
+				}else{
+					Head_Flag = 0;
+					Receive_Count = 0;	
+				}					
 			}else{
-				 Recevie_Date_Length = Recive_Count;		 
+				 Receive_Date_Length = Receive_Count;		 
 				 Head_Flag = 0;
-				 Recive_Count = 0;
-				 Recive_Buffer_Full_Flag = 1;
+				 Receive_Count = 0;
+				 Receive_Buffer_Full_Flag = 1;
 			}	 
 		}
 	}

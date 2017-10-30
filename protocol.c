@@ -1,11 +1,20 @@
 #include "protocol.h"
 #include "UART.h"
 #include "delay.h"
-//#include "Error_Check.h"
-//#include "Flash_Control.h"
+#include "Error_Check.h"
+#include "Flash_Control.h"
 
 uint8_t Analysis_Lock = 0;
-uint8_t Data_Check_OK = 0;
+uint8_t Flash_Times_Level;
+
+extern uint32_t Flash_Times;
+extern uint8_t Error_Flag;
+extern uint8_t Full_Charge_Flag;
+extern uint8_t Flash_Level;
+extern uint8_t Lamp_Type;
+
+uint8_t Mode_Type;
+
 
 static const uint8_t code CRC_Table[256]={
     0x00,0x31,0x62,0x53,0xc4,0xf5,0xa6,0x97,0xb9,0x88,0xdb,0xea,0x7d,0x4c,0x1f,0x2e,
@@ -26,10 +35,10 @@ static const uint8_t code CRC_Table[256]={
     0x82,0xb3,0xe0,0xd1,0x46,0x77,0x24,0x15,0x3b,0x0a,0x59,0x68,0xff,0xce,0x9d,0xac
 };
 
-extern uint8_t Recive_Buff[10];
+extern uint8_t Receive_Buff[10];
 
-extern uint8_t Recive_Buffer_Full_Flag;
-extern uint8_t Recevie_Date_Length;
+extern uint8_t Receive_Buffer_Full_Flag;
+extern uint8_t Receive_Date_Length;
 
 
 uint8_t Crc_Caculate(uint8_t *d,uint8_t length)
@@ -71,4 +80,81 @@ void Send_Data(uint8_t *Data,uint8_t length)
 	Uart_SendByte(BUS_END);
 }
 
+void Analysis_Request(void)
+{
+	uint8_t Data_Check_OK;
+	if(Receive_Buffer_Full_Flag)
+	{
+		Analysis_Lock = 1;
+		Receive_Buffer_Full_Flag = 0;			
+		Data_Check_OK = Receive_Data_Check(&Receive_Buff,Receive_Date_Length);
+		if(!Data_Check_OK)
+		{		
+			Data_Check_OK = 1;  
+			switch(Receive_Buff[0]){
+				case FUN_No1 : No1_Fun();break;
+				case FUN_No2 : No2_Fun();break;
+				//case FUN_No3 : No3_Fun();break;
+				case FUN_No6 : No6_Fun();break;
+				case FUN_No7 : No7_Fun();break;
+				case FUN_No8 : No8_Fun();break;
+				case FUN_No10: No10_Fun();break;
+				case FUN_No11: No11_Fun();break;
+				default : break;
+			}
+		}
+	  Analysis_Lock = 0;
+	}
+}
 
+void No1_Fun(void)    /* get flash times */
+{
+	uint8_t temp[4];
+	temp[0] = (uint8_t)Flash_Times;
+	temp[1] = (uint8_t)(Flash_Times>>8);
+	temp[2] = (uint8_t)(Flash_Times>>16);
+	temp[3] = (uint8_t)(Flash_Times>>24);
+	Send_Data(&temp,4);
+}
+
+void No2_Fun(void)   /* get flash times level */
+{
+	Send_Data(&Flash_Times_Level,1);
+}
+/*
+void No3_Fun(void)   /* get skin color level */
+/*{
+	Send_Data(&Skin_Color_Level,1);
+}
+*/
+
+void No6_Fun(void)   /* get ERROR flag */
+{
+	Send_Data(&Error_Flag,1);
+}
+
+void No7_Fun(void)   /* Full Charge flag */
+{
+	Full_Charge_Flag = Receive_Buff[2];
+	if(Full_Charge_Flag)
+	{
+		Full_Charge_LED_On;
+	}else{
+		Full_Charge_LED_Off;
+	}
+}
+
+void No8_Fun(void)  /* Mode Type */
+{
+	Mode_Type = Receive_Buff[2];
+}
+
+void No10_Fun(void)  /* Flash level */
+{
+	Flash_Level = Receive_Buff[2];
+}
+
+void No11_Fun(void)  /* Get Lamp Type */
+{
+	Send_Data(&Lamp_Type,1);
+}

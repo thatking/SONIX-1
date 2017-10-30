@@ -1,15 +1,17 @@
 #include "key.h"
 #include "Flash_Control.h"
 #include "Error_Check.h"
+#include "protocol.h"
 
 uint8_t Key_Trig = 0;
 uint8_t Key_Count = 0;
 uint8_t Key_Read = 0;
 uint8_t Standard_Flash_Lock = 0;
-uint8_t Mode_Type = 0;
-uint8_t Flash_Times_Level = 0;
-uint8_t Low_Lamp = 0;
-uint8_t Full_Charge_Flag = 0;
+
+extern uint8_t Mode_Type ;
+extern uint8_t Flash_Times_Level;
+extern uint8_t Low_Lamp ;
+extern uint8_t Full_Charge_Flag;
 
 extern uint8_t Error_Flag;
 

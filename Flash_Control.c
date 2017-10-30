@@ -3,11 +3,13 @@
 #include "EEPROM.h"
 
 uint32_t Flash_Times = 0;
+uint8_t Flash_Level = 0;
+
 uint8_t Flash_Flag = 0;
 uint8_t Flash_Ready_OK_Flag = 0;
 uint8_t Flash_Off_Flag = 0;
 uint8_t Flash_OK_Flag = 0;
-uint8_t Flash_Level = 0;
+
 uint8_t EEPROM_Write_Number_Error;
 uint8_t Check_Write_EEPROM_Timeout = 0;
 

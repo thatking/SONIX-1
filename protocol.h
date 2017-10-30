@@ -29,10 +29,11 @@ void Send_Data(uint8_t *Data,uint8_t length);
 void Analysis_Request(void);
 void No1_Fun(void);
 void No2_Fun(void);
-void No3_Fun(void);
+//void No3_Fun(void);
 void No6_Fun(void);
 void No7_Fun(void);
 void No8_Fun(void);
+void No10_Fun(void);
 void No11_Fun(void);
 
 #endif

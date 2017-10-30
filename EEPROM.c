@@ -501,16 +501,13 @@ void EEPROM_Write_SR(uint8_t srdata)
 */
 void Write_Num_TO_EEPROM(uint32_t flash_count)
 {
-  uint8_t dataHH,dataHL,dataLH,dataLL,data_arry[4];
+  uint8_t data_arry[4];
 	uint8_t i;
-  dataHH = (uint8_t)(flash_count >> 24);  /* 32 Bit unmerge two 8 Bit Data */
-  dataHL = (uint8_t)(flash_count >> 16);
-  dataLH = (uint8_t)(flash_count >> 8);
-  dataLL = (uint8_t)(flash_count);
-  data_arry[0] = dataLL;
-  data_arry[1] = dataLH;
-  data_arry[2] = dataHL;
-  data_arry[3] = dataHH;  /* write Data to DATA_ADDR in EEPROM */
+  data_arry[3] = (uint8_t)(flash_count >> 24);  /* 32 Bit unmerge two 8 Bit Data */
+  data_arry[2] = (uint8_t)(flash_count >> 16);
+  data_arry[1] = (uint8_t)(flash_count >> 8);
+  data_arry[0] = (uint8_t)(flash_count);
+   /* write Data to DATA_ADDR in EEPROM */
 
   EEPROM_Write_CMD(CMD_WREN);
   EEPROM_StartHeader();
@@ -579,7 +576,7 @@ uint32_t Read_Num_From_EEPROM(void)
   EEPROM_SAK(); 
   EEPROM_Write_Byte(DATA_ADDR_L);
   EEPROM_MAK();
-  EEPROM_SAK();
+  EEPROM_SAK(); 
 	
   for(i=0;i<4;i++)
   {

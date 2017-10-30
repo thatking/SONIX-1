@@ -14,6 +14,7 @@ void Init_Fun(void)
 	ADC_Init_Fun();	
 	//EEPROM_IO_Init();	
 	Key_IO_Init();
+	UART_RECEIVE;
   Flash_Times = Read_Num_From_EEPROM();
   if(Flash_Times >= Flash_Times_Level1)
 	{

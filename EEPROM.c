@@ -434,6 +434,7 @@ void EEPROM_Write_CMD(uint8_t cmd)
 * Note(s)    : If timeout, Than set EEPROM ERROR Flag.
 ********************************************************************************
 */
+/*
 uint8_t EEPROM_Read_SR(void)
 {
   uint8_t Bit;
@@ -445,13 +446,14 @@ uint8_t EEPROM_Read_SR(void)
   EEPROM_SAK();
   
   EEPROM_Write_Byte(CMD_RDSR); /* write read status regist commad */
-  EEPROM_MAK();
+ /* EEPROM_MAK();
   EEPROM_SAK();
   Bit = EEPROM_Read_Byte();
   EEPROM_NoMAK();
   EEPROM_SAK();
   return Bit;
 }
+*/
 
 /*
 ********************************************************************************
@@ -466,22 +468,24 @@ uint8_t EEPROM_Read_SR(void)
 * Note(s)    : If timeout, Than set EEPROM ERROR Flag.
 ********************************************************************************
 */
+/*
 void EEPROM_Write_SR(uint8_t srdata)
 {
   EEPROM_StartHeader(); /* start head */
   
-  EEPROM_Write_Byte(EEPROM_DEVICE_ADDR);  /* write device address */
-  EEPROM_MAK();
+/*  EEPROM_Write_Byte(EEPROM_DEVICE_ADDR);  /* write device address */
+/*  EEPROM_MAK();
   EEPROM_SAK();
   
   EEPROM_Write_Byte(CMD_WRSR); /* write commad */
-  EEPROM_MAK();
+/*  EEPROM_MAK();
   EEPROM_SAK();
   EEPROM_Write_Byte(srdata); /* write status Data */
-  EEPROM_NoMAK();
+/*  EEPROM_NoMAK();
   EEPROM_SAK();
   Delay_ms(10); /* delay Twc(5-10ms) time */
-}
+/*}
+*/
 
 /*
 ********************************************************************************

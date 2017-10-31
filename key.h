@@ -7,7 +7,7 @@
 #define FLASH_SW_PIN								0x01  /* Pin P00 */
 
 #define Standard_Mode               1
-#define Auto_Flash_Mode             2
+#define Auto_Mode                   2
 #define Standard_Multi_Mode         3
 #define Auto_Multi_Mode             4
 

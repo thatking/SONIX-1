@@ -39,29 +39,30 @@ void Uart_SendByte(uint8_t Data)
  IEN0 |= 0x10;  /* enable uart Interrupt */
  UART_RECEIVE;
 }
-
+/*
 void Uart_SendStr(uint8_t *str)
 {
 	UART_SEND;
   IEN0 &= ~0x10;  /* disable uart Interrupt */
-	while(*str != '\0')
+/*	while(*str != '\0')
 	{
 		S0BUF = *str++;
     while(!(S0CON & 0x02));
     S0CON &= ~0x02;
 	}
 	IEN0 |= 0x10;  /* enable uart Interrupt */
-  UART_RECEIVE;
+ /* UART_RECEIVE;
 }
-
+*/
+/*
 void Uart_Send32Bit(uint32_t d)
 {
 	uint8_t data_arry[4];
 	uint8_t i;
 	UART_SEND;
   IEN0 &= ~0x10;  /* disable uart Interrupt */
-  data_arry[3] = (uint8_t)(d >> 24);  /* 32 Bit unmerge two 8 Bit Data */
-  data_arry[2] = (uint8_t)(d >> 16);
+/*  data_arry[3] = (uint8_t)(d >> 24);  /* 32 Bit unmerge two 8 Bit Data */
+/*  data_arry[2] = (uint8_t)(d >> 16);
   data_arry[1] = (uint8_t)(d >> 8);
   data_arry[0] = (uint8_t)(d);
   
@@ -72,13 +73,15 @@ void Uart_Send32Bit(uint32_t d)
     S0CON &= ~0x02;
 	}
 	IEN0 |= 0x10;  /* enable uart Interrupt */
-  UART_RECEIVE;
+/*  UART_RECEIVE;
 }
-
+*/
+/*
 uint8_t Uart_ReceiveByte(void)
 {
  return ((uint8_t)S0BUF);
 }
+*/
 
 void UartInterrupt(void) interrupt ISRUart
 {

@@ -7,12 +7,16 @@ uint8_t Key_Trig = 0;
 uint8_t Key_Count = 0;
 uint8_t Key_Read = 0;
 uint8_t Standard_Flash_Lock = 0;
+uint8_t Key_Delay_Count = 0;
+uint8_t Key_Push = 0;
+uint8_t Full_Charge_Flag = 0;
+uint8_t Low_Lamp;
 
 extern uint8_t Mode_Type ;
 extern uint8_t Flash_Times_Level;
 extern uint8_t Low_Lamp ;
-extern uint8_t Full_Charge_Flag;
 
+extern uint8_t Lock_Flag;
 extern uint8_t Error_Flag;
 
 
@@ -49,15 +53,45 @@ void Key_Scan(void)
 
 void Key_Process(void)
 {
-	if((!(Error_Flag)) || (!(Full_Charge_Flag)) || (!(Low_Lamp))) 
+	if(!Lock_Flag)
 	{
-		Key_Scan();
-		switch(Mode_Type){
-		case Auto_Flash_Mode : Auto_Flash();break;
-		case Auto_Multi_Mode : Auto_Multi_Flash();break;
-		case Standard_Mode : Standard_Flash();break;
-		case Standard_Multi_Mode : Standard_Flash();break;
-    default : break;			 
+		if(Key_Count & FLASH_SW_PIN)
+		{
+			if(Key_Trig & FLASH_SW_PIN)
+			{
+				Key_Push = 1;
+			}
+			if(Key_Push == 1)
+			{
+				Key_Delay_Count ++;
+				if(Key_Delay_Count == 200)
+				{
+					Key_Push = 0;
+					Key_Delay_Count = 0;
+					switch(Mode_Type){
+						case Auto_Mode : Mode_Type = Auto_Multi_Mode;break;
+						case Auto_Multi_Mode : Mode_Type = Auto_Mode;break;
+						case Standard_Mode : Mode_Type = Standard_Multi_Mode;break;
+						case Standard_Multi_Mode : Mode_Type = Standard_Mode;break;
+						default : break;
+				  }
+			  }
+			}
+		}else{
+			Key_Push = 0;
+			Key_Delay_Count = 0;
+		}
+		
+		if((!(Error_Flag)) || (!(Full_Charge_Flag)) || (!(Low_Lamp))) 
+		{
+			Key_Scan();
+			switch(Mode_Type){
+			case Auto_Mode : Auto_Flash();break;
+			case Auto_Multi_Mode : Auto_Multi_Flash();break;
+			case Standard_Mode : Standard_Flash();break;
+			case Standard_Multi_Mode : Standard_Multi_Flash();break;
+			default : break;			 
+			}
 		}
 	}
 }

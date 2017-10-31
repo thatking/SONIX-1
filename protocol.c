@@ -5,7 +5,9 @@
 #include "Flash_Control.h"
 
 uint8_t Analysis_Lock = 0;
-uint8_t Flash_Times_Level;
+uint8_t Flash_Times_Level = 0;
+uint8_t Lock_Flag = 1;
+uint8_t Mode_Type ;
 
 extern uint32_t Flash_Times;
 extern uint8_t Error_Flag;
@@ -13,7 +15,6 @@ extern uint8_t Full_Charge_Flag;
 extern uint8_t Flash_Level;
 extern uint8_t Lamp_Type;
 
-uint8_t Mode_Type;
 
 
 static const uint8_t code CRC_Table[256]={
@@ -35,6 +36,7 @@ static const uint8_t code CRC_Table[256]={
     0x82,0xb3,0xe0,0xd1,0x46,0x77,0x24,0x15,0x3b,0x0a,0x59,0x68,0xff,0xce,0x9d,0xac
 };
 
+
 extern uint8_t Receive_Buff[10];
 
 extern uint8_t Receive_Buffer_Full_Flag;
@@ -51,15 +53,6 @@ uint8_t Crc_Caculate(uint8_t *d,uint8_t length)
 	return crc;
 }
 
-uint8_t Receive_Data_Check(uint8_t *d,uint8_t length)
-{
-	uint8_t crc = 0;
-	while(length--)
-	{
-	  crc = CRC_Table[crc ^ *d++];
-	}
-	return crc;
-}
 
 void Send_Data(uint8_t *Data,uint8_t length)
 {
@@ -80,6 +73,8 @@ void Send_Data(uint8_t *Data,uint8_t length)
 	Uart_SendByte(BUS_END);
 }
 
+
+
 void Analysis_Request(void)
 {
 	uint8_t Data_Check_OK;
@@ -87,7 +82,7 @@ void Analysis_Request(void)
 	{
 		Analysis_Lock = 1;
 		Receive_Buffer_Full_Flag = 0;			
-		Data_Check_OK = Receive_Data_Check(&Receive_Buff,Receive_Date_Length);
+		Data_Check_OK = Crc_Caculate(&Receive_Buff,Receive_Date_Length);
 		if(!Data_Check_OK)
 		{		
 			Data_Check_OK = 1;  
@@ -100,6 +95,8 @@ void Analysis_Request(void)
 				case FUN_No8 : No8_Fun();break;
 				case FUN_No10: No10_Fun();break;
 				case FUN_No11: No11_Fun();break;
+				case FUN_No12: No12_Fun();break;
+				case FUN_No13: No13_Fun();break;
 				default : break;
 			}
 		}
@@ -117,6 +114,7 @@ void No1_Fun(void)    /* get flash times */
 	Send_Data(&temp,4);
 }
 
+
 void No2_Fun(void)   /* get flash times level */
 {
 	Send_Data(&Flash_Times_Level,1);
@@ -127,6 +125,7 @@ void No3_Fun(void)   /* get skin color level */
 	Send_Data(&Skin_Color_Level,1);
 }
 */
+
 
 void No6_Fun(void)   /* get ERROR flag */
 {
@@ -157,4 +156,14 @@ void No10_Fun(void)  /* Flash level */
 void No11_Fun(void)  /* Get Lamp Type */
 {
 	Send_Data(&Lamp_Type,1);
+}
+
+void No12_Fun(void)  /* Get Lamp Type */
+{
+	Send_Data(&Mode_Type,1);
+}
+
+void No13_Fun(void)  /* Lock Flag */
+{
+	Lock_Flag = Receive_Buff[2];
 }
